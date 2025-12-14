@@ -10,11 +10,10 @@ A minimal static site to view and share direct links to images, intended for Tow
 
 ## Usage
 - Place your images in the `media/` folder (committed to the repo) to serve them via GitHub Pages.
-- Open the site and paste a link, or use a relative path:
-  - External: `https://<your-pages-domain>/towerunite-images/?src=https://example.com/pic.jpg`
-  - Local (recommended): `https://<your-pages-domain>/towerunite-images/?src=media/your-image.jpg`
+- The viewer only serves local media files. Use relative paths like:
+  - `https://<your-pages-domain>/towerunite-images/?src=media/your-image.jpg`
 
-> Note: External images are loaded client-side. Some hosts block cross-origin access or downloads; right-click Save As usually works.
+> Note: External URLs are intentionally disallowed; keep assets in `media/`.
 
 ## GitHub Pages Deployment
 You can deploy from the `main` branch root or `/docs`. This repo is ready to serve from root.

@@ -50,19 +50,17 @@ function init() {
     e.preventDefault();
     const url = input.value.trim();
     if (!url) return;
-    // Accept absolute URLs and relative paths (e.g., media/filename.jpg)
-    const isAbsolute = /^(https?:)?\/\//i.test(url);
-    const finalUrl = isAbsolute ? url : url.replace(/^\.\//, '');
-    try {
-      if (isAbsolute) new URL(finalUrl); // Validate only absolute URLs
-      const params = new URLSearchParams(window.location.search);
-      params.set('src', finalUrl);
-      const newUrl = `${window.location.pathname}?${params.toString()}`;
-      history.replaceState(null, '', newUrl);
-      showViewer(finalUrl);
-    } catch (err) {
-      setError('Please enter a valid URL or a relative path like media/your-image.jpg.');
+    const finalUrl = url.replace(/^\.\//, '');
+    // Enforce media/ prefix to keep all images local
+    if (!finalUrl.startsWith('media/')) {
+      setError('Images must be in the media/ folder (use media/your-image.jpg).');
+      return;
     }
+    const params = new URLSearchParams(window.location.search);
+    params.set('src', finalUrl);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    history.replaceState(null, '', newUrl);
+    showViewer(finalUrl);
   });
 
   copyBtn.addEventListener('click', async () => {
