@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tower Unite Images</title>
+    <meta name="description" content="Simple viewer to display images from links for Tower Unite." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Tower Unite Images</h1>
+      <p>Paste an image URL or use <code>?src=...</code> in the address.</p>
+    </header>
+
+    <main>
+      <form id="image-form" autocomplete="off">
+        <label for="src">Image URL</label>
+        <div class="input-row">
+          <input id="src" name="src" type="url" placeholder="https://example.com/image.jpg" required />
+          <button type="submit">Load</button>
+        </div>
+        <p class="hint">Tip: Add query like <code>?src=https://...</code> to auto-load.</p>
+      </form>
+
+      <section id="viewer" class="viewer hidden">
+        <div class="toolbar">
+          <a id="open-link" href="#" target="_blank" rel="noopener noreferrer">Open original</a>
+          <button id="copy-link" type="button">Copy link</button>
+          <button id="download-image" type="button">Download</button>
+        </div>
+        <div class="canvas">
+          <img id="image" alt="Loaded from URL" />
+        </div>
+        <div id="error" class="error hidden" role="alert"></div>
+      </section>
+    </main>
+
+    <footer>
+      <small>Static viewer served via GitHub Pages. External images load directly; no proxy.</small>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
