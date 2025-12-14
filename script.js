@@ -9,6 +9,58 @@ function setError(msg) {
   error.classList.toggle('hidden', !msg);
 }
 
+function mediaUrl(filename) {
+  // Build a URL relative to the current page for images in media/
+  return new URL(filename, window.location.href).toString();
+}
+
+async function loadGallery() {
+  const grid = document.getElementById('gallery-grid');
+  const status = document.getElementById('gallery-status');
+  const owner = 'M1XZG';
+  const repo = 'towerunite-images';
+  const branch = 'main';
+  try {
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/media?ref=${branch}`);
+    if (!res.ok) throw new Error(`GitHub API error ${res.status}`);
+    const files = await res.json();
+    const images = files.filter((f) => f.type === 'file');
+    if (!images.length) {
+      status.textContent = 'No images yet. Add files to media/ and refresh.';
+      grid.innerHTML = '<div class="empty">No images in media/.</div>';
+      return;
+    }
+    status.textContent = `Loaded ${images.length} file(s) from media/`;
+    grid.innerHTML = '';
+    images.forEach((file) => {
+      const card = document.createElement('div');
+      card.className = 'thumb';
+      const img = document.createElement('img');
+      img.src = mediaUrl(file.path);
+      img.alt = file.name;
+      const label = document.createElement('div');
+      label.className = 'thumb-name';
+      label.textContent = file.name;
+      card.appendChild(img);
+      card.appendChild(label);
+      card.addEventListener('click', () => {
+        const url = file.path;
+        const params = new URLSearchParams(window.location.search);
+        params.set('src', url);
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        history.replaceState(null, '', newUrl);
+        document.getElementById('src').value = url;
+        showViewer(url);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    status.textContent = 'Unable to load media list (GitHub API). Add images to media/ and try again.';
+    console.error(err);
+  }
+}
+
 function showViewer(url) {
   const viewer = document.getElementById('viewer');
   const img = document.getElementById('image');
@@ -45,6 +97,8 @@ function init() {
     input.value = initial;
     showViewer(initial);
   }
+
+  loadGallery();
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
