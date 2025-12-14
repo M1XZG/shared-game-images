@@ -50,15 +50,18 @@ function init() {
     e.preventDefault();
     const url = input.value.trim();
     if (!url) return;
+    // Accept absolute URLs and relative paths (e.g., media/filename.jpg)
+    const isAbsolute = /^(https?:)?\/\//i.test(url);
+    const finalUrl = isAbsolute ? url : url.replace(/^\.\//, '');
     try {
-      new URL(url);
+      if (isAbsolute) new URL(finalUrl); // Validate only absolute URLs
       const params = new URLSearchParams(window.location.search);
-      params.set('src', url);
+      params.set('src', finalUrl);
       const newUrl = `${window.location.pathname}?${params.toString()}`;
       history.replaceState(null, '', newUrl);
-      showViewer(url);
+      showViewer(finalUrl);
     } catch (err) {
-      setError('Please enter a valid URL.');
+      setError('Please enter a valid URL or a relative path like media/your-image.jpg.');
     }
   });
 

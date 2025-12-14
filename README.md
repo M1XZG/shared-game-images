@@ -9,9 +9,10 @@ A minimal static site to view and share direct links to images, intended for Tow
 - No backend — plain HTML/CSS/JS
 
 ## Usage
-- Open the site and paste a link, or
-- Share a URL like:
-  - `https://<your-pages-domain>/towerunite-images/?src=https://example.com/pic.jpg`
+- Place your images in the `media/` folder (committed to the repo) to serve them via GitHub Pages.
+- Open the site and paste a link, or use a relative path:
+  - External: `https://<your-pages-domain>/towerunite-images/?src=https://example.com/pic.jpg`
+  - Local (recommended): `https://<your-pages-domain>/towerunite-images/?src=media/your-image.jpg`
 
 > Note: External images are loaded client-side. Some hosts block cross-origin access or downloads; right-click Save As usually works.
 
@@ -30,7 +31,7 @@ You can deploy from the `main` branch root or `/docs`. This repo is ready to ser
 - Enable GitHub Pages (Settings → Pages → Source: GitHub Actions) after pushing.
 
 ## Local Preview
-Just open `index.html` in a browser, or run a simple server:
+Just open `index.html` in a browser, or run a simple server. Ensure your images are under `media/`:
 
 ```bash
 # Python 3
