@@ -10,6 +10,8 @@ function setError(msg) {
 }
 
 function isImageFile(name) {
+  // Ignore .gitkeep and non-image extensions
+  if (name.toLowerCase() === '.gitkeep') return false;
   return /\.(png|jpe?g|gif|webp|avif|bmp)$/i.test(name);
 }
 
