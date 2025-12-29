@@ -1,5 +1,17 @@
-#!/usr/bin/env python3
 
+#!/usr/bin/env python3
+"""
+replace_posters.py
+
+Automates the replacement of poster images for VRChat worlds.
+For each world listed in world-list.txt, replaces poster images in vrc/<world>/
+with new images from image-pool/portrait/, ensuring:
+    - No duplicate images within a world
+    - No poster receives the same image as before (when possible)
+    - All changes are committed and pushed to Git
+
+Run this script from the repository root.
+"""
 
 import os
 import shutil
@@ -11,20 +23,41 @@ import sys
 WORLD_LIST_FILE = 'world-list.txt'
 POOL_DIR = 'image-pool/portrait/'
 
-# Helper to get SHA256 hash of a file
+
 def file_sha256(path):
+    """
+    Compute the SHA256 hash of a file.
+    Args:
+        path (str): Path to the file.
+    Returns:
+        str: SHA256 hex digest of the file contents.
+    """
     h = hashlib.sha256()
     with open(path, 'rb') as f:
         for chunk in iter(lambda: f.read(8192), b''):
             h.update(chunk)
     return h.hexdigest()
 
+
 def get_worlds():
+    """
+    Read the list of world names from WORLD_LIST_FILE.
+    Returns:
+        list[str]: List of world names.
+    """
     with open(WORLD_LIST_FILE, 'r') as f:
         return [line.strip() for line in f if line.strip()]
 
+
 def get_poster_files(world_dir):
-    # Only match poster#.png (not posterpaper, etc)
+    """
+    Get all poster image filenames in a world directory, sorted by number.
+    Only matches files like poster1.png, poster2.png, etc.
+    Args:
+        world_dir (str): Path to the world directory.
+    Returns:
+        list[str]: Sorted list of poster filenames.
+    """
     posters = []
     for fname in os.listdir(world_dir):
         if fname.startswith('poster') and fname.endswith('.png') and fname[6:-4].isdigit():
@@ -32,7 +65,16 @@ def get_poster_files(world_dir):
     posters.sort(key=lambda x: int(x[6:-4]))
     return posters
 
+
 def git_run(args, check=True):
+    """
+    Run a git command and print its output.
+    Args:
+        args (list[str]): Git command arguments.
+        check (bool): Raise error if command fails.
+    Returns:
+        subprocess.CompletedProcess: Result of the git command.
+    """
     print(f"[GIT] {' '.join(args)}")
     result = subprocess.run(["git"] + args, capture_output=True, text=True)
     if result.stdout:
@@ -43,7 +85,12 @@ def git_run(args, check=True):
         raise RuntimeError(f"Git command failed: {' '.join(args)}")
     return result
 
+
 def setup_git():
+    """
+    Configure git user and remote for automated commits and pushes.
+    Uses environment variables for author info and GitHub token if available.
+    """
     user_name = os.environ.get("GIT_AUTHOR_NAME", "Poster Bot")
     user_email = os.environ.get("GIT_AUTHOR_EMAIL", "poster-bot@example.com")
     git_run(["config", "user.name", user_name])
@@ -60,6 +107,11 @@ def setup_git():
         git_run(["remote", "set-url", "origin", remote_url])
 
 def main():
+    """
+    Main entry point: replaces poster images for each world with new images from the pool.
+    Ensures no duplicates within a world and avoids reusing the same image for a poster (when possible).
+    Commits and pushes changes to Git.
+    """
     setup_git()
     worlds = get_worlds()
     pool_images = []
@@ -162,6 +214,7 @@ def main():
 
     # Push once at the end
     git_run(["push"])
+
 
 if __name__ == '__main__':
     main()
