@@ -81,17 +81,43 @@ def main():
             print(f"No poster files found in {poster_dir}")
             continue
 
-        # Only ensure no duplicates within this world
+        # Only ensure no duplicates within this world and not same as previous image
         used_hashes = set()
         selected = []
         available = pool_images[:]
         random.shuffle(available)
-        for fname, h in available:
-            if h not in used_hashes:
-                selected.append((fname, h))
-                used_hashes.add(h)
-            if len(selected) == len(poster_files):
+
+        # Get current hashes for each poster file
+        current_hashes = []
+        for pf in poster_files:
+            pf_path = os.path.join(poster_dir, pf)
+            if os.path.exists(pf_path):
+                current_hashes.append(file_sha256(pf_path))
+            else:
+                current_hashes.append(None)
+
+        # For each poster, pick a pool image that is not the same as the current one and not already used in this world
+        for idx, prev_hash in enumerate(current_hashes):
+            found = False
+            for fname, h in available:
+                if h not in used_hashes and h != prev_hash:
+                    selected.append((fname, h))
+                    used_hashes.add(h)
+                    found = True
+                    break
+            if not found:
+                print(f"[WARNING] Not enough unique images in pool to replace poster {poster_files[idx]} for {world} (may repeat old image)")
+                # fallback: allow using an image even if it's the same as before, but not already used in this world
+                for fname, h in available:
+                    if h not in used_hashes:
+                        selected.append((fname, h))
+                        used_hashes.add(h)
+                        found = True
+                        break
+            if not found:
+                print(f"[ERROR] Not enough unique images in pool to replace all posters for {world}.")
                 break
+
         if len(selected) < len(poster_files):
             print(f"Not enough unique images in pool to replace all posters for {world}.")
             continue
