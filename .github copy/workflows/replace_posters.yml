@@ -1,0 +1,31 @@
+
+name: Replace Posters Daily
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  replace-posters:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Run poster replacement script
+        run: python3 scripts/replace_posters.py
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'Robert McKenzie'
+          git config --global user.email 'rmckenzi@rpmdp.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git add vrc/soft-space/poster1.png vrc/soft-space/poster2.png vrc/soft-space/poster3.png
+          git commit -m 'Automated poster replacement' || echo 'No changes to commit'
+          git push
